@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SplitPay - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .bg-animate { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-size: 400% 400%; animation: gradientShift 20s ease infinite; }
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 25% { background-position: 100% 50%; } 50% { background-position: 100% 0%; } 75% { background-position: 0% 0%; } 100% { background-position: 0% 50%; } }
+        .card { background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); backdrop-filter: blur(10px); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); }
+        .btn { transition: all 0.2s ease; border-radius: 8px; font-weight: 600; position: relative; overflow: hidden; }
+        .btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s; }
+        .btn:hover::before { left: 100%; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); }
+        .fade-in { animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    </style>
+</head>
+<body class="bg-animate min-h-screen">
+    <!-- Nav -->
+    <nav class="glass flex justify-between items-center px-8 py-4 shadow-lg fade-in">
+        <div class="flex items-center gap-3">
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-2 rounded-xl font-bold text-lg shadow-lg">$</div>
+            <h2 class="text-xl font-extrabold text-white tracking-tight">SplitPay</h2>
+        </div>
+        <div class="flex items-center gap-4">
+            <button id="add-expense-btn" class="btn bg-white text-indigo-600 px-6 py-3 font-semibold shadow-md hover:bg-indigo-50 pulse">
+                <i data-lucide="plus" class="inline w-5 h-5 mr-2"></i>Add Expense
+            </button>
+            <a href="{{ url_for('logout') }}" class="btn bg-red-500 text-white px-6 py-3 hover:bg-red-600">
+                <i data-lucide="log-out" class="inline w-5 h-5 mr-2"></i>Logout
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+        <!-- Welcome -->
+        <div class="text-center mb-10 fade-in">
+            <h1 class="text-5xl font-bold text-white drop-shadow-lg mb-2">Hey {{ user['username'] }}! 👋</h1>
+            <p class="text-white/90 text-xl font-light">Let's split expenses effortlessly with your crew.</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <div class="card p-6 text-center cursor-pointer hover:scale-105 transition-transform" onclick="document.getElementById('add-expense-btn').click()">
+                <i data-lucide="plus-circle" class="w-12 h-12 text-indigo-600 mx-auto mb-3"></i>
+                <h3 class="font-semibold text-slate-800">Add Expense</h3>
+                <p class="text-sm text-slate-500">Quickly log a new split</p>
+            </div>
+            <div class="card p-6 text-center">
+                <i data-lucide="users" class="w-12 h-12 text-green-600 mx-auto mb-3"></i>
+                <h3 class="font-semibold text-slate-800">Manage Groups</h3>
+                <p class="text-sm text-slate-500">Organize your friends</p>
+            </div>
+            <div class="card p-6 text-center">
+                <i data-lucide="bar-chart" class="w-12 h-12 text-blue-600 mx-auto mb-3"></i>
+                <h3 class="font-semibold text-slate-800">View Reports</h3>
+                <p class="text-sm text-slate-500">See spending insights</p>
+            </div>
+            <div class="card p-6 text-center">
+                <i data-lucide="settings" class="w-12 h-12 text-gray-600 mx-auto mb-3"></i>
+                <h3 class="font-semibold text-slate-800">Settings</h3>
+                <p class="text-sm text-slate-500">Customize your app</p>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="card p-6 text-center">
+                <i data-lucide="trending-up" class="w-8 h-8 text-green-600 mx-auto mb-2"></i>
+                <h3 class="text-lg font-semibold text-slate-700">You Owe</h3>
+                <p class="text-3xl font-bold text-green-600">$0.00</p>
+                <p class="text-sm text-slate-500">All settled up! 🎉</p>
+            </div>
+            <div class="card p-6 text-center">
+                <i data-lucide="trending-down" class="w-8 h-8 text-red-600 mx-auto mb-2"></i>
+                <h3 class="text-lg font-semibold text-slate-700">Owed to You</h3>
+                <p class="text-3xl font-bold text-red-600">$0.00</p>
+                <p class="text-sm text-slate-500">No pending payments</p>
+            </div>
+            <div class="card p-6 text-center">
+                <i data-lucide="users" class="w-8 h-8 text-blue-600 mx-auto mb-2"></i>
+                <h3 class="text-lg font-semibold text-slate-700">Active Groups</h3>
+                <p class="text-3xl font-bold text-blue-600">2</p>
+                <p class="text-sm text-slate-500">Trip buddies & Roomies</p>
+            </div>
+        </div>
+
+        <!-- Expenses List -->
+        <div class="card p-6 fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-slate-800">Recent Expenses</h2>
+                <button class="btn bg-indigo-600 text-white px-4 py-2 text-sm">View All</button>
+            </div>
+            {% if expenses %}
+                <div class="space-y-4">
+                    {% for expense in expenses %}
+                        <div class="flex justify-between items-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-4">
+                                <i data-lucide="receipt" class="w-6 h-6 text-slate-500"></i>
+                                <div>
+                                    <h4 class="font-semibold text-slate-800">{{ expense.description }}</h4>
+                                    <p class="text-sm text-slate-500">Split with: {{ ', '.join(expense.split_with) }}</p>
+                                </div>
+                            </div>
+                            <p class="font-bold text-lg text-slate-800">${{ expense.amount }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <i data-lucide="file-x" class="w-16 h-16 text-slate-300 mx-auto mb-4"></i>
+                    <h3 class="text-lg font-semibold text-slate-600 mb-2">No expenses yet</h3>
+                    <p class="text-slate-500 mb-4">Start by adding your first expense to track splits with friends!</p>
+                    <button class="btn bg-indigo-600 text-white px-6 py-3" onclick="document.getElementById('add-expense-btn').click()">Add Your First Expense</button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div id="add-expense-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50 fade-in">
+        <div class="card p-8 w-full max-w-lg mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-slate-800">Add New Expense</h3>
+                <button id="close-modal" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form action="/add-expense" method="POST" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Description</label>
+                    <input type="text" name="description" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="e.g., Dinner at Italian Place" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Amount</label>
+                    <input type="number" name="amount" step="0.01" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="0.00" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Split With (comma-separated names)</label>
+                    <input type="text" name="split_with" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="Alice, Bob, Charlie">
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="btn bg-indigo-600 text-white px-6 py-3 flex-1">Save Expense</button>
+                    <button type="button" id="cancel-modal" class="btn bg-slate-300 text-slate-700 px-6 py-3 flex-1">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal interactions
+        const modal = document.getElementById('add-expense-modal');
+        const addBtn = document.getElementById('add-expense-btn');
+        const closeBtn = document.getElementById('close-modal');
+        const cancelBtn = document.getElementById('cancel-modal');
+
+        addBtn.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        });
+        closeBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        });
+        cancelBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        });
+
+        // Close modal on outside click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        });
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

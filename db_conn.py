@@ -17,6 +17,7 @@ class Postgresql:
         self.port = 5432
         
     def create_connection(self):
+       """Establishes a connection to the PostgreSQL database."""
        try:
         print("Establishing the Postgresql connection...")
         self.conn = psycopg2.connect(
@@ -36,22 +37,16 @@ class Postgresql:
             print(f"Error while connecting to DB: {e}")
     
     def execute_query(self, query, params=None, fetch=True):
+        """Executes a SQL query. If fetch is True, returns data; otherwise, commits changes."""
         results = []
-
         try:
-            self.cursor = self.conn.cursor()
-
-            self.cursor.execute(query, params)
-
-            if fetch:
-                results = self.cursor.fetchall()
-                # print(f"records: {results}")
-                # print(f"Total number of rows: {self.cursor.rowcount}")
-                # print(f"retreiver: {results[0]}")
-
-            else:
-                self.conn.commit()
-                print("Query executed successfully")
+            with self.conn.cursor() as cursor:
+                cursor.execute(query, params)
+                if fetch:
+                    results = cursor.fetchall()
+                else:
+                    self.conn.commit()
+                    print("Query executed successfully")
 
         except Exception as e:
             print(f"Error while executing query: {e}")
@@ -60,6 +55,7 @@ class Postgresql:
         return results
 
     def close_connection(self):
+        """Closes the connection to the database."""
         if self.conn:
             self.conn.close()
             self.conn = None

@@ -21,20 +21,18 @@ class Authentication:
                 "MESSAGE": "User already exists"
             }
         password_hash = generate_password_hash(password)
-        query = "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)"
+        query = "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)"
 
-        results = self.db.execute_query(query, (username, email, password_hash))
-        self.db.conn.commit()
-
-        if results:
+        try:
+            self.db.execute_query(query, (username, email, password_hash), fetch=False)
             return {
                 "SUCCESS": True,
                 "MESSAGE": "User registered successfully"
             }
-        else:
+        except Exception as e:
             return {
                 "SUCCESS": False,
-                "MESSAGE": "Failed to register user"
+                "MESSAGE": f"Failed to register user: {e}"
             }
 
     def login_user(self, email, password):
@@ -48,18 +46,17 @@ class Authentication:
                 "MESSAGE": "User not found"
             }
         
-        user = result[0]
+        user = results[0]
 
         if not check_password_hash(user["password"], password):
             return {
-                "success": False,
-                "message": "Invalid password"
+                "SUCCESS": False,
+                "MESSAGE": "Invalid password"
             }
 
         return {
-            "success": True,
+            "SUCCESS": True,
             "user": {
-                "id": user["id"],
                 "username": user["username"],
                 "email": user["email"]
             }
